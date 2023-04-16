@@ -8,9 +8,13 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using Assignment3.Classes;
+using System.Threading;
 
 namespace Assignment3
 {
@@ -38,7 +42,7 @@ namespace Assignment3
         /// <summary>
         /// Array holds Student Names (max 10)
         /// </summary>
-        private String[] aArrayStudent = { "" };
+        private String[] aArrayStudent = null;
 
         /// <summary>
         /// Multidimensional array. 
@@ -57,6 +61,11 @@ namespace Assignment3
         /// StringBuilder declaration used to be continuously used for strings appended to the scoreboard richtextbox
         /// </summary>
         StringBuilder scoreboard;
+        
+        /// <summary>
+        /// StringBuilder declaration used to update the scoreboard
+        /// </summary>
+        StringBuilder updatescoreboard;
 
         /// <summary>
         /// Variable to hold user input for integers
@@ -595,28 +604,36 @@ namespace Assignment3
         /// the # of assignments, each respective score, 
         /// the student's avg of all scores, and their letter grade
         /// </summary>
-        private void ScoreDisplay()
+        private string ScoreDisplay()
         {
+            string sScoreboard = "";
+
             if (!ArrayIsNull())
             {
                 RichTextBoxDefault();
-                scoreboard = new StringBuilder();
+                updatescoreboard = new StringBuilder();
                 double avg;
 
                 for (int row = 0; row < aArrayStudent.Length; row++)
                 {
-                    scoreboard.Append(StudentToString(row));
+                    updatescoreboard.Append(StudentToString(row));
 
                     for (int column = 0; column < aArrayAssignment.GetUpperBound(1) + 1; column++)
                     {
-                        scoreboard.Append(AssignmentToString(row, column));
+                        updatescoreboard.Append(AssignmentToString(row, column));
                     }
                     avg = CalculateAssignmentAvg(row);
-                    scoreboard.Append(AssignmentAvgToString(avg));
-                    scoreboard.Append(CalculateGrade(avg));
+                    updatescoreboard.Append(AssignmentAvgToString(avg));
+                    updatescoreboard.Append(CalculateGrade(avg));
                 }
 
-                rtxtbxScoreDisplay.Text += scoreboard.ToString();
+                sScoreboard += updatescoreboard.ToString();
+
+                return sScoreboard;
+            }
+            else
+            {
+                return "";
             }
         }
 
@@ -716,7 +733,10 @@ namespace Assignment3
         /// <param name="e"></param>
         private void btnScoreDisplay_Click(object sender, EventArgs e)
         {
-            ScoreDisplay();
+            if (ScoreDisplay() != "")
+            {
+                rtxtbxScoreDisplay.Text += ScoreDisplay();
+            }
         }
         #endregion
 
@@ -805,5 +825,145 @@ namespace Assignment3
 
         #endregion
 
+        #region New Variables for Assignment 7
+        /// <summary>
+        /// File object
+        /// </summary>
+        clsFile newFile;
+        /// <summary>
+        /// Delegate used to dispay a message on the UI thread
+        /// </summary>
+        private delegate void DisplayMessageDelegate();
+
+
+        #endregion
+
+        #region New Methods for Assignment 7
+        /// <summary>
+        /// Method for when Output to file button is pressed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnFileOut_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                lblFileError.Text = "";
+
+                string fileName = txtFileName.Text;
+
+                if (fileName.Length > 0)
+                {
+                    // Call methods to generate score
+                    RichTextBoxDefault();
+                    rtxtbxScoreDisplay.Text += ScoreDisplay();
+
+                    // Create File
+                    newFile = new clsFile();
+
+                    // Fill file with generated score
+                    newFile.Name = fileName;
+                    newFile.Scoreboard = rtxtbxScoreDisplay.Text;
+                    rtxtbxScoreDisplay.Text = "";
+                    txtFileName.Text = "";
+
+                    // Display message that file writing has began
+                    lblFileError.Text = "Writing to file.";
+                    btnFileOut.Enabled = false;
+                    // Create background thread to write file
+                    backgroundWorker1.RunWorkerAsync();
+
+                }
+                else
+                {
+                    lblFileError.Text = "Enter an unused file name.";
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleError(MethodInfo.GetCurrentMethod().DeclaringType.Name,
+                    MethodInfo.GetCurrentMethod().Name, ex.Message);
+            }
+        }
+        /// <summary>
+        /// Method used to update the label that file creation has completed.
+        /// </summary>
+        private void DisplayFinishMessage()
+        {
+            lblFileError.Text = "Finshed Writing to File.";
+        }
+
+        /// <summary>
+        /// Method for Handling Errors
+        /// Top level method when called displays a message to the user with the error,
+        /// If an error occurs when displaying, save a file into the C drive with the Exception message.
+        /// </summary>
+        /// <param name="sClass"></param>
+        /// <param name="sMethod"></param>
+        /// <param name="sMessage"></param>
+        private void HandleError(string sClass, string sMethod, string sMessage)
+        {
+            try
+            {
+                MessageBox.Show(sClass + "." + sMethod + " -> " + sMessage);
+            }
+            catch (System.Exception ex)
+            {
+                System.IO.File.AppendAllText(@"C:\Users\Public\Error.txt", Environment.NewLine + "HandleError Exception: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Handles the DoWork event from the backgroundWorker
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            try
+            {
+                // Create New thread for file creation
+                newFile.CreateFile();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// <summary>
+        /// The backgroundWorker has completed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            try
+            {
+                // Invoke delete to display File creation completion
+                lblFileError.Invoke(new DisplayMessageDelegate(DisplayFinishMessage));
+                btnFileOut.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// <summary>
+        /// Handles backgroundWorker Progress
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            try
+            {
+                lblFileError.Text = "Writing to file.";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

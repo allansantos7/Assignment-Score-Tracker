@@ -56,6 +56,11 @@ namespace Assignment3
             this.groupStudent = new System.Windows.Forms.GroupBox();
             this.groupAssignment = new System.Windows.Forms.GroupBox();
             this.btnReset = new System.Windows.Forms.Button();
+            this.btnFileOut = new System.Windows.Forms.Button();
+            this.txtFileName = new System.Windows.Forms.TextBox();
+            this.lblFileName = new System.Windows.Forms.Label();
+            this.lblFileError = new System.Windows.Forms.Label();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.groupArrayCreate.SuspendLayout();
             this.groupNavigate.SuspendLayout();
             this.groupStudent.SuspendLayout();
@@ -67,7 +72,7 @@ namespace Assignment3
             this.lblArrayStudent.AutoSize = true;
             this.lblArrayStudent.Location = new System.Drawing.Point(26, 33);
             this.lblArrayStudent.Name = "lblArrayStudent";
-            this.lblArrayStudent.Size = new System.Drawing.Size(138, 17);
+            this.lblArrayStudent.Size = new System.Drawing.Size(127, 16);
             this.lblArrayStudent.TabIndex = 0;
             this.lblArrayStudent.Text = "Number of Students:";
             // 
@@ -95,7 +100,7 @@ namespace Assignment3
             this.lblArrayCreateError.AutoSize = true;
             this.lblArrayCreateError.Location = new System.Drawing.Point(171, 9);
             this.lblArrayCreateError.Name = "lblArrayCreateError";
-            this.lblArrayCreateError.Size = new System.Drawing.Size(79, 17);
+            this.lblArrayCreateError.Size = new System.Drawing.Size(73, 16);
             this.lblArrayCreateError.TabIndex = 3;
             this.lblArrayCreateError.Text = "Error Label";
             // 
@@ -114,7 +119,7 @@ namespace Assignment3
             this.lblArrayAssignment.AutoSize = true;
             this.lblArrayAssignment.Location = new System.Drawing.Point(2, 67);
             this.lblArrayAssignment.Name = "lblArrayAssignment";
-            this.lblArrayAssignment.Size = new System.Drawing.Size(162, 17);
+            this.lblArrayAssignment.Size = new System.Drawing.Size(152, 16);
             this.lblArrayAssignment.TabIndex = 5;
             this.lblArrayAssignment.Text = "Number of Assignments:";
             // 
@@ -164,7 +169,7 @@ namespace Assignment3
             this.lblStudentDisplay.AutoSize = true;
             this.lblStudentDisplay.Location = new System.Drawing.Point(6, 35);
             this.lblStudentDisplay.Name = "lblStudentDisplay";
-            this.lblStudentDisplay.Size = new System.Drawing.Size(81, 17);
+            this.lblStudentDisplay.Size = new System.Drawing.Size(72, 16);
             this.lblStudentDisplay.TabIndex = 8;
             this.lblStudentDisplay.Text = "Student #1:";
             // 
@@ -192,7 +197,7 @@ namespace Assignment3
             this.lblDisplayStudentError.AutoSize = true;
             this.lblDisplayStudentError.Location = new System.Drawing.Point(135, 235);
             this.lblDisplayStudentError.Name = "lblDisplayStudentError";
-            this.lblDisplayStudentError.Size = new System.Drawing.Size(79, 17);
+            this.lblDisplayStudentError.Size = new System.Drawing.Size(73, 16);
             this.lblDisplayStudentError.TabIndex = 11;
             this.lblDisplayStudentError.Text = "Error Label";
             // 
@@ -212,7 +217,7 @@ namespace Assignment3
             this.lblAssNum.AutoSize = true;
             this.lblAssNum.Location = new System.Drawing.Point(10, 46);
             this.lblAssNum.Name = "lblAssNum";
-            this.lblAssNum.Size = new System.Drawing.Size(228, 17);
+            this.lblAssNum.Size = new System.Drawing.Size(206, 16);
             this.lblAssNum.TabIndex = 13;
             this.lblAssNum.Text = "Enter Assignment Number ( 0 - 0 ):";
             // 
@@ -229,7 +234,7 @@ namespace Assignment3
             this.lblAssScore.AutoSize = true;
             this.lblAssScore.Location = new System.Drawing.Point(112, 70);
             this.lblAssScore.Name = "lblAssScore";
-            this.lblAssScore.Size = new System.Drawing.Size(126, 17);
+            this.lblAssScore.Size = new System.Drawing.Size(119, 16);
             this.lblAssScore.TabIndex = 15;
             this.lblAssScore.Text = "Assignment Score:";
             // 
@@ -246,7 +251,7 @@ namespace Assignment3
             this.lblAssScoreError.AutoSize = true;
             this.lblAssScoreError.Location = new System.Drawing.Point(241, 18);
             this.lblAssScoreError.Name = "lblAssScoreError";
-            this.lblAssScoreError.Size = new System.Drawing.Size(79, 17);
+            this.lblAssScoreError.Size = new System.Drawing.Size(73, 16);
             this.lblAssScoreError.TabIndex = 17;
             this.lblAssScoreError.Text = "Error Label";
             // 
@@ -336,11 +341,55 @@ namespace Assignment3
             this.btnReset.UseVisualStyleBackColor = true;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
             // 
+            // btnFileOut
+            // 
+            this.btnFileOut.Location = new System.Drawing.Point(529, 431);
+            this.btnFileOut.Name = "btnFileOut";
+            this.btnFileOut.Size = new System.Drawing.Size(110, 41);
+            this.btnFileOut.TabIndex = 25;
+            this.btnFileOut.Text = "Output to file";
+            this.btnFileOut.UseVisualStyleBackColor = true;
+            this.btnFileOut.Click += new System.EventHandler(this.btnFileOut_Click);
+            // 
+            // txtFileName
+            // 
+            this.txtFileName.Location = new System.Drawing.Point(645, 447);
+            this.txtFileName.Name = "txtFileName";
+            this.txtFileName.Size = new System.Drawing.Size(100, 22);
+            this.txtFileName.TabIndex = 26;
+            // 
+            // lblFileName
+            // 
+            this.lblFileName.AutoSize = true;
+            this.lblFileName.Location = new System.Drawing.Point(645, 429);
+            this.lblFileName.Name = "lblFileName";
+            this.lblFileName.Size = new System.Drawing.Size(105, 16);
+            this.lblFileName.TabIndex = 27;
+            this.lblFileName.Text = "Output file name:";
+            // 
+            // lblFileError
+            // 
+            this.lblFileError.AutoSize = true;
+            this.lblFileError.Location = new System.Drawing.Point(752, 447);
+            this.lblFileError.Name = "lblFileError";
+            this.lblFileError.Size = new System.Drawing.Size(0, 16);
+            this.lblFileError.TabIndex = 28;
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(941, 642);
+            this.Controls.Add(this.lblFileError);
+            this.Controls.Add(this.lblFileName);
+            this.Controls.Add(this.txtFileName);
+            this.Controls.Add(this.btnFileOut);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.groupAssignment);
             this.Controls.Add(this.groupStudent);
@@ -393,6 +442,11 @@ namespace Assignment3
         private System.Windows.Forms.GroupBox groupStudent;
         private System.Windows.Forms.GroupBox groupAssignment;
         private System.Windows.Forms.Button btnReset;
+        private System.Windows.Forms.Button btnFileOut;
+        private System.Windows.Forms.TextBox txtFileName;
+        private System.Windows.Forms.Label lblFileName;
+        private System.Windows.Forms.Label lblFileError;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 
