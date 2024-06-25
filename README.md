@@ -3,7 +3,7 @@
 <h1>Student Assignment Score Tracker</h1>
 
 <h3>Description</h3>
-WPF program that inputs students’ assignment scores and displays them. 
+WPF program that inputs students’ assignment scores with the option to save the scores to a file and/or display them. 
 
 <h3>Goals</h3>
 <ul>
