@@ -33,9 +33,6 @@ WPF program that inputs students’ assignment scores with the option to save th
     When the “Output to file” button is pressed, instead of displaying the student’s data to the textbox, it will be outputted to a file on a new thread. 
     The file name should be entered by the user in a textbox next to “Output to file” button.
   </li>
-  <li></li>
-  <li></li>
-  <li></li>
   <li>
     All values entered must be validated and error labels given for invalid input.  
   </li>
